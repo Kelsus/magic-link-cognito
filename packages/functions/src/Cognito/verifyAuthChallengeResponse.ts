@@ -11,8 +11,9 @@ async function handler(event) {
   }
 
   const json = event.request.challengeAnswer
-  const payload = JSON.parse(json)
+  const payload = JSON.parse(Buffer.from(json, 'base64').toString())
   console.log(payload)
+  console.log(payload.email)
   
   const isExpired = new Date().toJSON() > payload.expiration
   console.log('isExpired:', isExpired)
