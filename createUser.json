@@ -1,0 +1,22 @@
+{
+    version: "1",
+    region: "us-east-1",
+    userPoolId: "us-east-1_y9UqdZ7Xr",
+    userName: "c9f6ba67-be69-41ef-8271-d8ee93f8895f",
+    callerContext: {
+      awsSdkVersion: "aws-sdk-js-2.1309.0",
+      clientId: "CLIENT_ID_NOT_APPLICABLE",
+    },
+    triggerSource: "PreSignUp_AdminCreateUser",
+    request: {
+      userAttributes: {
+        email: "mjaime@kelsus.com",
+        },
+      validationData: null,
+    },
+    response: {
+      autoConfirmUser: false,
+      autoVerifyEmail: false,
+      autoVerifyPhone: false,
+    },
+}
