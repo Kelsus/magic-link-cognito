@@ -1,6 +1,13 @@
-export async function main() {
+import { middyfy } from "src/lib/lambda"
+
+async function main(event) {
+  console.log(event)
     return {
       statusCode: 200,
-      body: "Hello user!",
+      body: `Hello ${event.customVariables.email}!`,
     };
   }
+
+  const mainFunction = middyfy(main);
+
+export { mainFunction };

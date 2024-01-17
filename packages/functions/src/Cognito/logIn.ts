@@ -6,7 +6,7 @@ import SES from 'aws-sdk/clients/sesv2'
 const ses = new SES()
 const { SES_FROM_ADDRESS, USER_POOL_ID, BASE_URL } = process.env
 const ONE_MIN = 60 * 1000
-const TIMEOUT_MINS=50
+const TIMEOUT_MINS=30
 import qs from 'querystring'
 
  async function handler(event) {
@@ -31,7 +31,7 @@ import qs from 'querystring'
   const tokenRaw =JSON.stringify(payload)
   const tokenB64 = Buffer.from(tokenRaw).toString('base64')
   const token = qs.escape(tokenB64)
-  const magicLink = `https://${BASE_URL}/magic-link?email=${email}&token=${token}`  
+  const magicLink = `${BASE_URL}/magic-link?email=${email}&token=${token}`  
 
   try {
     await cognito.adminUpdateUserAttributes({

@@ -18,7 +18,8 @@ export function ExampleStack({ stack }: StackContext) {
     stack,
     "verifyAuthChallengeResponse",
     {
-      handler: "packages/functions/src/Cognito/verifyAuthChallengeResponse.handler",
+      handler:
+        "packages/functions/src/Cognito/verifyAuthChallengeResponse.handler",
     }
   );
 
@@ -39,9 +40,9 @@ export function ExampleStack({ stack }: StackContext) {
     cdk: {
       userPool: {
         signInAliases: { email: true },
-        customAttributes:{
-          authChallenge:new StringAttribute({ mutable: true}),
-        }
+        customAttributes: {
+          authChallenge: new StringAttribute({ mutable: true }),
+        },
       },
       userPoolClient: {
         preventUserExistenceErrors: true,
@@ -51,21 +52,38 @@ export function ExampleStack({ stack }: StackContext) {
 
   const logIn = new Function(stack, "logInCognito", {
     handler: "packages/functions/src/Cognito/logIn.logIn",
-    environment:{
-      SES_FROM_ADDRESS:'Notification@dev.kelsus.com',
-      BASE_URL:'4hr77g9qi4.execute-api.us-east-1.amazonaws.com',
-      USER_POOL_ID:auth.userPoolId
+    environment: {
+      SES_FROM_ADDRESS: "Notification@dev.kelsus.com",
+      BASE_URL: "localhost:5173",
+      USER_POOL_ID: auth.userPoolId,
     },
-permissions:["cognito-idp:AdminUpdateUserAttributes",'ses:SendEmail']
+    permissions: ["cognito-idp:AdminUpdateUserAttributes", "ses:SendEmail"],
   });
 
   // Create Api
   const api = new Api(stack, "Api", {
+    authorizers: {
+      authorizer: {
+        type: "lambda",
+        responseTypes: ["simple"],
+        identitySource: [],
+        function: new Function(stack, "Authorizer", {
+          handler: "packages/functions/src/authorizer/authorizer.main",
+          environment:{
+            USER_POOL_ID:auth.userPoolId,
+            USER_POOL_CLIENT_ID: auth.userPoolClientId
+          }
+        }),
+      },
+    },
     defaults: {
-      authorizer: "iam",
+      authorizer: "authorizer"
     },
     routes: {
-      "GET /private": "packages/functions/src/private.main",
+      "GET /private": {function:{handler:"packages/functions/src/private.mainFunction", environment:{
+        USER_POOL_ID:auth.userPoolId,
+        USER_POOL_CLIENT_ID: auth.userPoolClientId
+      }}},
       "GET /public": {
         function: "packages/functions/src/public.main",
         authorizer: "none",
@@ -83,6 +101,7 @@ permissions:["cognito-idp:AdminUpdateUserAttributes",'ses:SendEmail']
         authorizer: "none",
       },
     },
+    
   });
   // Allow authenticated users invoke API
   auth.attachPermissionsForAuthUsers(stack, [api]);
